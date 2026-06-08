@@ -2,6 +2,9 @@ import { ListChecks, LogIn, RefreshCcw, Route } from 'lucide-react'
 import { BrowserRouter, Link, Route as RouterRoute, Routes } from 'react-router-dom'
 import Auth from './pages/Auth'
 import Login from './pages/Login'
+import Profile from './pages/Profile'
+import { RequireLogin } from './routes/RequireLogin'
+import { RequireTurnstile } from './routes/RequireTurnstile'
 
 function Home() {
   return (
@@ -84,9 +87,16 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <RouterRoute path="/" element={<Home />} />
-        <RouterRoute path="/login" element={<Login />} />
-        <RouterRoute path="/auth" element={<Auth />} />
+        <RouterRoute path="/verify" element={<Auth />} />
+
+        <RouterRoute element={<RequireTurnstile />}>
+          <RouterRoute path="/" element={<Home />} />
+          <RouterRoute path="/login" element={<Login />} />
+
+          <RouterRoute element={<RequireLogin />}>
+            <RouterRoute path="/profile" element={<Profile />} />
+          </RouterRoute>
+        </RouterRoute>
       </Routes>
     </BrowserRouter>
   )

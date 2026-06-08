@@ -1,7 +1,33 @@
 import { Turnstile } from '@marsidev/react-turnstile'
 import { env } from '@/config/env'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 function Auth() {
+  const navigate = useNavigate()
+
+  const location = useLocation()
+
+  const handleTurnstileSuccess = async (token: string) => {
+    const response = await fetch('/api/turnstile/verify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+      credentials: 'include',
+    })
+
+    if (!response.ok) {
+      return
+    }
+
+    const result = await response.json()
+    const from = typeof location.state?.from === 'string' ? location.state.from : null
+    const redirectTo = from ?? result.redirectTo ?? '/'
+
+    navigate(redirectTo, { replace: true })
+  }
+
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f6f2] px-4 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="animated-field absolute inset-0" aria-hidden="true" />
@@ -26,6 +52,7 @@ function Auth() {
         <div className="overflow-hidden border border-zinc-300 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-950">
           <Turnstile
             siteKey={env.turnstileSiteKey}
+            onSuccess={handleTurnstileSuccess}
             options={{
               size: 'flexible',
               theme: 'auto',
