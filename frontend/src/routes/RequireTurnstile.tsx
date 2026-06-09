@@ -1,41 +1,15 @@
-import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import type { SessionData, SessionRouteContext } from './session'
-
-type TurnstileState =
-  | { status: 'loading'; session: null }
-  | { status: 'verified'; session: SessionData }
-  | { status: 'unverified'; session: null }
+import { useSession } from '../session/SessionProvider'
 
 export function RequireTurnstile() {
   const location = useLocation()
-  const [state, setState] = useState<TurnstileState>({
-    status: 'loading',
-    session: null,
-  })
+  const { session, status } = useSession()
 
-  useEffect(() => {
-    fetch('/api/session', {
-      credentials: 'include',
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setState(
-          data.turnstileVerified
-            ? { status: 'verified', session: data }
-            : { status: 'unverified', session: null },
-        )
-      })
-      .catch(() => {
-        setState({ status: 'unverified', session: null })
-      })
-  }, [])
-
-  if (state.status === 'loading') {
+  if (status === 'loading') {
     return <div>Checking...</div>
   }
 
-  if (state.status === 'unverified') {
+  if (status === 'error' || !session?.turnstileVerified) {
     return (
       <Navigate
         to="/verify"
@@ -45,5 +19,5 @@ export function RequireTurnstile() {
     )
   }
 
-  return <Outlet context={{ session: state.session } satisfies SessionRouteContext} />
+  return <Outlet />
 }

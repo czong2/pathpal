@@ -14,7 +14,7 @@ public class SecurityConfig {
         return http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/session", "/api/turnstile/verify", "/api/auth/github/**").permitAll()
+                .requestMatchers("/api/session", "/api/turnstile/verify", "/api/auth/github/**", "/api/auth/logout").permitAll()
                 .anyRequest().permitAll()
             )
             .build();

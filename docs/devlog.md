@@ -27,3 +27,15 @@
 - Build the real logged-in dashboard
 - Add logout support
 - Improve session and user state handling on the frontend
+
+## 2026-06-09 Logged-In App Shell
+
+### Completed
+
+- Added a side navigation for logged-in pages
+- Added logout without resetting Turnstile verification
+- Sketched frontend pages for Profile, Posts, Groups, Messages, and AI Coach
+
+### Next Steps
+
+- Add backend integration for agent creation

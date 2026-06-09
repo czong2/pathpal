@@ -1,10 +1,15 @@
 import { ListChecks, LogIn, RefreshCcw, Route } from 'lucide-react'
 import { BrowserRouter, Link, Route as RouterRoute, Routes } from 'react-router-dom'
+import Agent from './pages/Agent'
 import Auth from './pages/Auth'
+import Groups from './pages/Groups'
 import Login from './pages/Login'
+import Messages from './pages/Messages'
+import Posts from './pages/Posts'
 import Profile from './pages/Profile'
 import { RequireLogin } from './routes/RequireLogin'
 import { RequireTurnstile } from './routes/RequireTurnstile'
+import { SessionProvider } from './session/SessionProvider'
 
 function Home() {
   return (
@@ -86,18 +91,24 @@ function Home() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <RouterRoute path="/verify" element={<Auth />} />
+      <SessionProvider>
+        <Routes>
+          <RouterRoute path="/verify" element={<Auth />} />
 
-        <RouterRoute element={<RequireTurnstile />}>
-          <RouterRoute path="/" element={<Home />} />
-          <RouterRoute path="/login" element={<Login />} />
+          <RouterRoute element={<RequireTurnstile />}>
+            <RouterRoute path="/" element={<Home />} />
+            <RouterRoute path="/login" element={<Login />} />
 
-          <RouterRoute element={<RequireLogin />}>
-            <RouterRoute path="/profile" element={<Profile />} />
+            <RouterRoute element={<RequireLogin />}>
+              <RouterRoute path="/agent" element={<Agent />} />
+              <RouterRoute path="/dm" element={<Messages />} />
+              <RouterRoute path="/groups" element={<Groups />} />
+              <RouterRoute path="/posts" element={<Posts />} />
+              <RouterRoute path="/profile" element={<Profile />} />
+            </RouterRoute>
           </RouterRoute>
-        </RouterRoute>
-      </Routes>
+        </Routes>
+      </SessionProvider>
     </BrowserRouter>
   )
 }

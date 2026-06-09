@@ -1,11 +1,11 @@
-import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom'
-import type { SessionRouteContext } from './session'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useSession } from '../session/SessionProvider'
 
 export function RequireLogin() {
   const location = useLocation()
-  const { session } = useOutletContext<SessionRouteContext>()
+  const { session } = useSession()
 
-  if (!session.user) {
+  if (!session?.user) {
     return (
       <Navigate
         to="/login"
@@ -15,5 +15,5 @@ export function RequireLogin() {
     )
   }
 
-  return <Outlet context={{ session } satisfies SessionRouteContext} />
+  return <Outlet />
 }

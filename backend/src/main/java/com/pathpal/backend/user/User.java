@@ -25,7 +25,7 @@ public class User {
     @Column(nullable = false)
     private String login;
 
-    @Column(nullable = false)
+    @Column
     private String avatarUrl;
 
     @Column(nullable = false)

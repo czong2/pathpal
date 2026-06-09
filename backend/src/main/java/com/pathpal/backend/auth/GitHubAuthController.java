@@ -74,38 +74,50 @@ public class GitHubAuthController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> callback(@RequestParam String code, @RequestParam String state, HttpSession session) {
+    public ResponseEntity<Void> callback(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String error,
+            HttpSession session) {
+        if (StringUtils.hasText(error) || !StringUtils.hasText(code) || !StringUtils.hasText(state)) {
+            return redirectToLoginError();
+        }
+
         String expectedState = (String) session.getAttribute(GITHUB_STATE_KEY);
 
         if (!StringUtils.hasText(expectedState) || !expectedState.equals(state)) {
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/login")).build();
+            return redirectToLoginError();
         }
 
-        GitHubTokenResponse tokenResponse = exchangeCodeForToken(code);
+        try {
+            GitHubTokenResponse tokenResponse = exchangeCodeForToken(code);
 
-        if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/login")).build();
+            if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
+                return redirectToLoginError();
+            }
+
+            GitHubUserResponse gitHubUser = fetchGitHubUser(tokenResponse.accessToken());
+
+            if (gitHubUser == null || gitHubUser.id() == null || !StringUtils.hasText(gitHubUser.login())) {
+                return redirectToLoginError();
+            }
+
+            User user = userService.findOrCreateByGitHubProfile(
+                gitHubUser.id(),
+                gitHubUser.login(),
+                gitHubUser.avatarUrl()
+            );
+
+            boolean remember = Boolean.TRUE.equals(session.getAttribute(GITHUB_REMEMBER_KEY));
+            session.setAttribute(USER_ID_KEY, user.getId());
+            session.removeAttribute(GITHUB_STATE_KEY);
+            session.removeAttribute(GITHUB_REMEMBER_KEY);
+            session.setMaxInactiveInterval(remember ? 7 * 24 * 60 * 60 : 60 * 60);
+
+            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/profile")).build();
+        } catch (RuntimeException exception) {
+            return redirectToLoginError();
         }
-
-        GitHubUserResponse gitHubUser = fetchGitHubUser(tokenResponse.accessToken());
-
-        if (gitHubUser == null || gitHubUser.id() == null || !StringUtils.hasText(gitHubUser.login())) {
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/login")).build();
-        }
-
-        User user = userService.findOrCreateByGitHubProfile(
-            gitHubUser.id(),
-            gitHubUser.login(),
-            gitHubUser.avatarUrl()
-        );
-
-        boolean remember = Boolean.TRUE.equals(session.getAttribute(GITHUB_REMEMBER_KEY));
-        session.setAttribute(USER_ID_KEY, user.getId());
-        session.removeAttribute(GITHUB_STATE_KEY);
-        session.removeAttribute(GITHUB_REMEMBER_KEY);
-        session.setMaxInactiveInterval(remember ? 7 * 24 * 60 * 60 : 60 * 60);
-
-        return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/profile")).build();
     }
 
     private GitHubTokenResponse exchangeCodeForToken(String code) {
@@ -138,10 +150,13 @@ public class GitHubAuthController {
     }
 
     private URI frontendLocation(String path) {
-        return UriComponentsBuilder.fromUriString(frontendUrl)
-            .path(path)
+        return UriComponentsBuilder.fromUriString(frontendUrl + path)
             .build()
             .toUri();
+    }
+
+    private ResponseEntity<Void> redirectToLoginError() {
+        return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/login?error=github")).build();
     }
 
     private record GitHubTokenResponse(

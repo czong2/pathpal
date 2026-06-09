@@ -1,11 +1,13 @@
 import { Turnstile } from '@marsidev/react-turnstile'
 import { env } from '@/config/env'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useSession } from '../session/SessionProvider'
 
 function Auth() {
   const navigate = useNavigate()
 
   const location = useLocation()
+  const { setSession } = useSession()
 
   const handleTurnstileSuccess = async (token: string) => {
     const response = await fetch('/api/turnstile/verify', {
@@ -25,6 +27,11 @@ function Auth() {
     const from = typeof location.state?.from === 'string' ? location.state.from : null
     const redirectTo = from ?? result.redirectTo ?? '/'
 
+    setSession((currentSession) => ({
+      turnstileVerified: true,
+      user: currentSession?.user ?? null,
+    }))
+
     navigate(redirectTo, { replace: true })
   }
 
@@ -33,7 +40,7 @@ function Auth() {
       <div className="animated-field absolute inset-0" aria-hidden="true" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(247,246,242,0.86),rgba(247,246,242,0.98))] dark:bg-[linear-gradient(180deg,rgba(9,9,11,0.86),rgba(9,9,11,0.98))]" />
 
-      <section className="relative w-full max-w-[360px] border border-zinc-200 bg-white/90 p-5 shadow-[0_18px_48px_rgba(39,39,42,0.10)] backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/85 dark:shadow-[0_18px_48px_rgba(0,0,0,0.30)] sm:p-6">
+      <section className="relative w-full max-w-[360px] min-w-0 border border-zinc-200 bg-white/90 p-5 shadow-[0_18px_48px_rgba(39,39,42,0.10)] backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/85 dark:shadow-[0_18px_48px_rgba(0,0,0,0.30)] sm:p-6">
         <div className="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
           <img src="/favicon.svg" alt="PathPal" className="h-8 w-8 shrink-0" />
           <div className="min-w-0 text-left">
@@ -43,21 +50,23 @@ function Auth() {
         </div>
 
         <div className="py-5 text-left">
-          <h1 className="text-xl font-semibold">Verify you are a human</h1>
+          <h1 className="text-xl font-semibold leading-snug">Verify you are a human</h1>
           <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
             Complete this quick check before continuing.
           </p>
         </div>
 
-        <div className="overflow-hidden border border-zinc-300 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-950">
-          <Turnstile
-            siteKey={env.turnstileSiteKey}
-            onSuccess={handleTurnstileSuccess}
-            options={{
-              size: 'flexible',
-              theme: 'auto',
-            }}
-          />
+        <div className="max-w-full overflow-x-auto border border-zinc-300 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-950">
+          <div className="min-w-[280px] max-w-full">
+            <Turnstile
+              siteKey={env.turnstileSiteKey}
+              onSuccess={handleTurnstileSuccess}
+              options={{
+                size: 'flexible',
+                theme: 'auto',
+              }}
+            />
+          </div>
         </div>
       </section>
     </main>
