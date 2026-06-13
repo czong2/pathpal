@@ -1,28 +1,26 @@
 import { useState } from 'react'
 import {
-  Bot,
+  FileText,
+  ListChecks,
   LogOut,
   Menu,
-  MessageCircle,
-  Newspaper,
-  User,
-  Users,
-  X,
+  Plus,
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSession } from '../session/useSession'
 
-const navItems = [
-  { label: 'Profile', to: '/profile', icon: User },
-  { label: 'Posts', to: '/posts', icon: Newspaper },
-  { label: 'Groups', to: '/groups', icon: Users },
-  { label: 'Messages', to: '/dm', icon: MessageCircle },
-  { label: 'AI Coach', to: '/agent', icon: Bot },
+const projects = [
+  { id: 'ap-biology', name: 'AP Biology Review', fileName: 'unit-guide.pdf' },
+  { id: 'react-basics', name: 'React Basics Plan', fileName: 'frontend-notes.pdf' },
+  { id: 'writing-portfolio', name: 'Writing Portfolio', fileName: 'rubric.pdf' },
 ]
 
 export function AppNav() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
+  const user = session?.user
 
   const handleSignOut = async () => {
     await fetch('/api/auth/logout', {
@@ -40,9 +38,13 @@ export function AppNav() {
         aria-label="Open navigation"
         aria-expanded={isOpen}
         onClick={() => setIsOpen(true)}
-        className="fixed left-3 top-3 z-40 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white/65 text-zinc-950 shadow-[0_8px_22px_rgba(39,39,42,0.10)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-400 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900 sm:left-5 sm:top-5 sm:h-10 sm:w-10"
+        className="fixed left-3 top-3 z-40 flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-white/70 text-zinc-950 shadow-[0_8px_22px_rgba(39,39,42,0.10)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-400 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900 sm:left-5 sm:top-5 sm:h-11 sm:w-11"
       >
-        <Menu aria-hidden="true" className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <Menu aria-hidden="true" className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+        )}
       </button>
 
       {isOpen && (
@@ -60,44 +62,77 @@ export function AppNav() {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <img src="/favicon.svg" alt="PathPal" className="h-8 w-8 shrink-0" />
-            <span className="truncate text-sm font-semibold text-zinc-950 dark:text-zinc-50">
-              PathPal
-            </span>
+        <nav className="flex flex-col">
+          <div className="flex flex-col gap-1">
+            <Link
+              to="/today"
+              onClick={() => setIsOpen(false)}
+              className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition ${
+                location.pathname === '/today'
+                  ? 'bg-zinc-200/80 text-zinc-950 dark:bg-zinc-800/90 dark:text-zinc-50'
+                  : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-50'
+              }`}
+            >
+              <ListChecks aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2} />
+              <span className="truncate">Today</span>
+            </Link>
+
+            <Link
+              to="/agent"
+              onClick={() => setIsOpen(false)}
+              className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-semibold transition ${
+                location.pathname === '/agent'
+                  ? 'bg-zinc-100 text-zinc-950 dark:bg-zinc-900 dark:text-zinc-50'
+                  : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-50'
+              }`}
+            >
+              <Plus aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2.2} />
+              <span className="truncate">New Project</span>
+            </Link>
           </div>
 
-          <button
-            type="button"
-            aria-label="Close navigation"
-            onClick={() => setIsOpen(false)}
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-zinc-200 bg-white/70 text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:text-zinc-50"
-          >
-            <X aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-          </button>
-        </div>
+          <div className="mt-5">
+            <div className="px-3 text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Projects
+            </div>
 
-        <nav className="mt-8 flex flex-col gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon
+            <div className="mt-2 flex flex-col gap-1">
+              {projects.map((project) => (
+                <Link
+                  key={project.id}
+                  to={`/agent/${project.id}`}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex min-h-12 items-center gap-3 rounded-md px-3 text-left transition ${
+                    location.pathname === `/agent/${project.id}`
+                      ? 'bg-zinc-100 dark:bg-zinc-900'
+                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                  }`}
+                >
+                  <FileText
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400"
+                    strokeWidth={2}
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                      {project.name}
+                    </span>
+                    <span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      {project.fileName}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
 
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setIsOpen(false)}
-                className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition ${
-                  location.pathname === item.to
-                    ? 'bg-zinc-200/80 text-zinc-950 dark:bg-zinc-800/90 dark:text-zinc-50'
-                    : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-50'
-                }`}
-              >
-                <Icon aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2} />
-                <span className="truncate">{item.label}</span>
-              </Link>
-            )
-          })}
+            <Link
+              to="/today"
+              onClick={() => setIsOpen(false)}
+              className="mt-3 block rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-300"
+            >
+              Show Completed Projects
+            </Link>
+          </div>
         </nav>
 
         <div className="mt-auto border-t border-zinc-200 pt-3 dark:border-zinc-800">

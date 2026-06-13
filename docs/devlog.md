@@ -39,3 +39,16 @@
 ### Next Steps
 
 - Add backend integration for agent creation
+
+## 2026-06-13 Direction Change
+
+### Completed
+
+- Changed the product direction to local AI-assisted PDF learning
+- Removed the social features from the app concept
+- Simplified the frontend around projects, PDF upload, and daily tasks
+
+### Next Steps
+
+- Build project storage and PDF upload
+- Add the local AI agent flow after the frontend is stable

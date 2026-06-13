@@ -2,11 +2,9 @@ import { ListChecks, LogIn, RefreshCcw, Route } from 'lucide-react'
 import { BrowserRouter, Link, Route as RouterRoute, Routes } from 'react-router-dom'
 import Agent from './pages/Agent'
 import Auth from './pages/Auth'
-import Groups from './pages/Groups'
 import Login from './pages/Login'
-import Messages from './pages/Messages'
-import Posts from './pages/Posts'
-import Profile from './pages/Profile'
+import NewProject from './pages/NewProject'
+import Today from './pages/Today'
 import { RequireLogin } from './routes/RequireLogin'
 import { RequireTurnstile } from './routes/RequireTurnstile'
 import { SessionProvider } from './session/SessionProvider'
@@ -14,9 +12,6 @@ import { SessionProvider } from './session/SessionProvider'
 function Home() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f7f6f2] text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
-      <div className="animated-field absolute inset-0" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(247,246,242,0.72),rgba(247,246,242,0.94)_64%,rgba(247,246,242,1))] dark:bg-[linear-gradient(180deg,rgba(9,9,11,0.70),rgba(9,9,11,0.92)_64%,rgba(9,9,11,1))]" />
-
       <section className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 sm:py-6">
         <header className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -100,11 +95,9 @@ function App() {
             <RouterRoute path="/login" element={<Login />} />
 
             <RouterRoute element={<RequireLogin />}>
-              <RouterRoute path="/agent" element={<Agent />} />
-              <RouterRoute path="/dm" element={<Messages />} />
-              <RouterRoute path="/groups" element={<Groups />} />
-              <RouterRoute path="/posts" element={<Posts />} />
-              <RouterRoute path="/profile" element={<Profile />} />
+              <RouterRoute path="/agent" element={<NewProject />} />
+              <RouterRoute path="/agent/:projectId" element={<Agent />} />
+              <RouterRoute path="/today" element={<Today />} />
             </RouterRoute>
           </RouterRoute>
         </Routes>

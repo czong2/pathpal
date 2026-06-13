@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useSession } from '../session/SessionProvider'
+import { useSession } from '../session/useSession'
 
 export function RequireLogin() {
   const location = useLocation()

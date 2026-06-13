@@ -1,144 +1,183 @@
-import { useState } from 'react'
-import { Bot, Plus, Send } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import type { ChangeEvent, SyntheticEvent } from 'react'
+import { FileText, Paperclip, Send, UploadCloud } from 'lucide-react'
+import { useParams } from 'react-router-dom'
 import { AppNav } from '../components/AppNav'
 
-const agents = [
+type ProjectFile = {
+  id: string
+  name: string
+  meta: string
+}
+
+type ChatMessage = {
+  id: string
+  from: 'Agent' | 'You'
+  text: string
+}
+
+const projectNames: Record<string, string> = {
+  'ap-biology': 'AP Biology Review',
+  'react-basics': 'React Basics Plan',
+  'writing-portfolio': 'Writing Portfolio',
+}
+
+const initialFiles: ProjectFile[] = [
+  { id: 'unit-guide', name: 'unit-guide.pdf', meta: 'Uploaded today' },
+  { id: 'rubric', name: 'rubric.pdf', meta: 'Ready for planning' },
+]
+
+const initialMessages: ChatMessage[] = [
   {
-    id: 'react-router',
-    name: 'React Router Plan',
-    preview: 'Next: turn route guards into reusable layouts.',
-    status: '68%',
-    messages: [
-      { id: '1', from: 'Agent', text: 'Your next milestone is cleaning up protected routes.' },
-      { id: '2', from: 'You', text: 'Make it smaller and more practical.' },
-    ],
-  },
-  {
-    id: 'path-system',
-    name: 'Path Planning System',
-    preview: 'Next: define how milestones become weekly tasks.',
-    status: '42%',
-    messages: [
-      { id: '1', from: 'Agent', text: 'You have two unclear milestones in this plan.' },
-      { id: '2', from: 'You', text: 'Help me rewrite the first one.' },
-    ],
-  },
-  {
-    id: 'writing',
-    name: 'Writing Habit',
-    preview: 'Next: publish one short reflection this week.',
-    status: '15%',
-    messages: [
-      { id: '1', from: 'Agent', text: 'Start with a 150-word note about what changed.' },
-      { id: '2', from: 'You', text: 'Keep it tied to my learning progress.' },
-    ],
+    id: '1',
+    from: 'Agent',
+    text: 'Upload the PDF you want to study from. I will turn it into a focused plan with milestones and daily tasks.',
   },
 ]
 
 function Agent() {
-  const [activeAgentId, setActiveAgentId] = useState<string | null>(agents[0].id)
+  const { projectId } = useParams()
+  const projectName = useMemo(() => (projectId ? projectNames[projectId] ?? 'Project Plan' : 'Project Plan'), [projectId])
+  const [files, setFiles] = useState<ProjectFile[]>(initialFiles)
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
+  const [draft, setDraft] = useState('')
+
+  const handleFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files ?? [])
+
+    if (selectedFiles.length === 0) {
+      return
+    }
+
+    setFiles((current) => [
+      ...current,
+      ...selectedFiles.map((file) => ({
+        id: crypto.randomUUID(),
+        name: file.name,
+        meta: `${Math.max(1, Math.round(file.size / 1024))} KB`,
+      })),
+    ])
+
+    event.target.value = ''
+  }
+
+  const sendMessage = (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const message = draft.trim()
+
+    if (!message) {
+      return
+    }
+
+    setDraft('')
+    setMessages((current) => [
+      ...current,
+      { id: crypto.randomUUID(), from: 'You', text: message },
+      {
+        id: crypto.randomUUID(),
+        from: 'Agent',
+        text: 'Got it. Once the PDF is processed, I will use it to adjust the plan instead of giving generic advice.',
+      },
+    ])
+  }
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[#f7f6f2] text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
       <AppNav />
-      <div className="animated-field absolute inset-0" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(247,246,242,0.76),rgba(247,246,242,0.96))] dark:bg-[linear-gradient(180deg,rgba(9,9,11,0.76),rgba(9,9,11,0.96))]" />
+      <section className="relative mx-auto grid min-h-screen w-full max-w-6xl gap-4 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[minmax(280px,360px)_1fr]">
+        <aside className="flex min-h-[520px] flex-col border border-zinc-200 bg-white/78 p-4 shadow-sm backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/65">
+          <div className="border-b border-zinc-200 pb-4 dark:border-zinc-800">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              Project
+            </p>
+            <h1 className="mt-2 truncate text-xl font-semibold">{projectName}</h1>
+          </div>
 
-      <section className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-16 sm:px-6 sm:py-20">
-        <header>
-          <h1 className="text-3xl font-semibold">AI Coach</h1>
-          <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Pick a path and keep working through it.
-          </p>
-        </header>
+          <label className="mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center border border-dashed border-zinc-300 bg-white/60 px-4 text-center transition hover:border-zinc-500 hover:bg-white dark:border-zinc-700 dark:bg-zinc-950/30 dark:hover:border-zinc-500 dark:hover:bg-zinc-950/45">
+            <UploadCloud aria-hidden="true" className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
+            <span className="mt-3 text-sm font-semibold">Upload PDF</span>
+            <span className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Drop source files here</span>
+            <input type="file" accept="application/pdf,.pdf" multiple className="sr-only" onChange={handleFiles} />
+          </label>
 
-        <section className="mt-6 grid gap-3">
-          {agents.map((agent) => {
-            const isActive = activeAgentId === agent.id
+          <section className="mt-5 min-h-0 flex-1">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold">Files</h2>
+              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">{files.length}</span>
+            </div>
 
-            return (
-              <article
-                key={agent.id}
-                className={`overflow-hidden border border-zinc-200 bg-white/78 shadow-sm backdrop-blur-xl transition-all duration-300 ease-out dark:border-zinc-800 dark:bg-zinc-900/65 ${
-                  isActive ? 'border-zinc-400 dark:border-zinc-600' : ''
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveAgentId(isActive ? null : agent.id)}
-                  className="flex min-h-16 w-full cursor-pointer items-center gap-3 px-4 text-left transition hover:bg-white/65 dark:hover:bg-zinc-900/65"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-                    <Bot aria-hidden="true" className="h-5 w-5" />
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{agent.name}</span>
-                    <span className="mt-0.5 block truncate text-sm text-zinc-500 dark:text-zinc-400">
-                      {agent.preview}
+            <div className="mt-3 grid gap-2">
+              {files.length > 0 ? (
+                files.map((file) => (
+                  <article
+                    key={file.id}
+                    className="flex min-h-12 min-w-0 items-center gap-3 border border-zinc-200 bg-white/70 px-3 dark:border-zinc-800 dark:bg-zinc-950/35"
+                  >
+                    <FileText aria-hidden="true" className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium">{file.name}</span>
+                      <span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">{file.meta}</span>
                     </span>
-                  </span>
+                  </article>
+                ))
+              ) : (
+                <div className="border border-zinc-200 bg-white/55 px-3 py-4 text-sm leading-6 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/25 dark:text-zinc-400">
+                  No files yet.
+                </div>
+              )}
+            </div>
+          </section>
+        </aside>
 
-                  <span className="shrink-0 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                    {agent.status}
-                  </span>
-                </button>
+        <section className="flex min-h-[520px] flex-col border border-zinc-200 bg-white/78 shadow-sm backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/65">
+          <div className="border-b border-zinc-200 px-4 py-4 dark:border-zinc-800">
+            <h2 className="text-sm font-semibold">Agent Chat</h2>
+          </div>
 
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+            {messages.map((message) => {
+              const isOwn = message.from === 'You'
+
+              return (
                 <div
-                  className={`grid transition-[grid-template-rows] duration-300 ease-out ${
-                    isActive ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                  key={message.id}
+                  className={`max-w-[84%] px-4 py-2.5 text-sm leading-6 ${
+                    isOwn
+                      ? 'ml-auto bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
+                      : 'mr-auto bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100'
                   }`}
                 >
-                  <div className="min-h-0 overflow-hidden">
-                    <div className="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
-                      <div className="flex flex-col gap-3">
-                        {agent.messages.map((message) => {
-                          const isOwn = message.from === 'You'
-
-                          return (
-                            <div
-                              key={message.id}
-                              className={`max-w-[84%] rounded-2xl px-4 py-2.5 text-sm leading-6 ${
-                                isOwn
-                                  ? 'ml-auto bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
-                                  : 'mr-auto bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100'
-                              }`}
-                            >
-                              {message.text}
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      <div className="mt-4 flex gap-2">
-                        <input
-                          placeholder="Ask about this plan..."
-                          className="h-11 min-w-0 flex-1 rounded-full border border-zinc-300 bg-white/80 px-4 text-sm outline-none transition focus:border-zinc-700 dark:border-zinc-700 dark:bg-zinc-950/55 dark:focus:border-zinc-300"
-                        />
-                        <button
-                          type="button"
-                          aria-label="Send message"
-                          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-zinc-300 bg-white/75 text-zinc-950 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-500 hover:bg-white dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
-                        >
-                          <Send aria-hidden="true" className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  {message.text}
                 </div>
-              </article>
-            )
-          })}
+              )
+            })}
+          </div>
+
+          <form className="flex gap-2 border-t border-zinc-200 p-4 dark:border-zinc-800" onSubmit={sendMessage}>
+            <button
+              type="button"
+              aria-label="Attach file"
+              className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border border-zinc-300 bg-white/75 text-zinc-950 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-500 hover:bg-white dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
+            >
+              <Paperclip aria-hidden="true" className="h-4 w-4" />
+            </button>
+            <input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Ask the agent to shape this into a plan..."
+              className="h-11 min-w-0 flex-1 border border-zinc-300 bg-white/80 px-4 text-sm outline-none transition focus:border-zinc-700 dark:border-zinc-700 dark:bg-zinc-950/55 dark:focus:border-zinc-300"
+            />
+            <button
+              type="submit"
+              aria-label="Send message"
+              className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border border-zinc-300 bg-white/75 text-zinc-950 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-500 hover:bg-white dark:border-zinc-700 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:border-zinc-500 dark:hover:bg-zinc-900"
+            >
+              <Send aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </form>
         </section>
       </section>
-
-      <button
-        type="button"
-        aria-label="Create agent"
-        className="fixed bottom-4 right-4 z-30 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-zinc-300 bg-white/78 text-zinc-950 shadow-[0_18px_48px_rgba(39,39,42,0.16)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-zinc-500 hover:bg-white dark:border-zinc-700 dark:bg-zinc-950/72 dark:text-zinc-50 dark:hover:border-zinc-500 dark:hover:bg-zinc-900 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
-      >
-        <Plus aria-hidden="true" className="h-5 w-5" strokeWidth={2.2} />
-      </button>
     </main>
   )
 }

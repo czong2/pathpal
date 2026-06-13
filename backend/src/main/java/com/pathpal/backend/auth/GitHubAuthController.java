@@ -114,7 +114,7 @@ public class GitHubAuthController {
             session.removeAttribute(GITHUB_REMEMBER_KEY);
             session.setMaxInactiveInterval(remember ? 7 * 24 * 60 * 60 : 60 * 60);
 
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/profile")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/today")).build();
         } catch (RuntimeException exception) {
             return redirectToLoginError();
         }

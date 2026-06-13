@@ -16,9 +16,6 @@ function Login() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f7f6f2] text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
-      <div className="animated-field absolute inset-0" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(247,246,242,0.72),rgba(247,246,242,0.94)_64%,rgba(247,246,242,1))] dark:bg-[linear-gradient(180deg,rgba(9,9,11,0.70),rgba(9,9,11,0.92)_64%,rgba(9,9,11,1))]" />
-
       <section className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 sm:py-6">
         <header className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
