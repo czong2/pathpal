@@ -52,3 +52,14 @@
 
 - Build project storage and PDF upload
 - Add the local AI agent flow after the frontend is stable
+
+## 2026-06-14 Project Creation and Agent Chat
+
+### Completed
+
+- Built the project creation API
+- Refined the frontend agent chat page
+
+### Next Steps
+
+- Build APIs to persist chat messages and uploaded project files

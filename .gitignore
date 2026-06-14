@@ -26,3 +26,8 @@ replay_pid*
 # Environment variables
 .env
 *.env
+
+# Local app data
+data/
+agent/data/
+agent/.venv/
