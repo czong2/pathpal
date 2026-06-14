@@ -15,6 +15,7 @@ import {
   UploadCloud,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { AppNav } from '../components/AppNav'
 
 type ProjectIcon = {
@@ -32,8 +33,17 @@ type ProjectColor = {
 
 type PendingFile = {
   id: string
+  file: File
   name: string
   type: 'pdf'
+}
+
+type CreateProjectResponse = {
+  id: number
+}
+
+type SubmitEventLike = {
+  preventDefault: () => void
 }
 
 const projectIcons: ProjectIcon[] = [
@@ -68,6 +78,7 @@ const monthNames = [
 ]
 
 function NewProject() {
+  const navigate = useNavigate()
   const [selectedIconId, setSelectedIconId] = useState(projectIcons[0].id)
   const [selectedColorId, setSelectedColorId] = useState(projectColors[0].id)
   const [projectName, setProjectName] = useState('')
@@ -80,6 +91,8 @@ function NewProject() {
   })
   const [hasDescription, setHasDescription] = useState(false)
   const [description, setDescription] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const selectedIcon = projectIcons.find((icon) => icon.id === selectedIconId) ?? projectIcons[0]
   const selectedColor = projectColors.find((color) => color.id === selectedColorId) ?? projectColors[0]
@@ -97,6 +110,7 @@ function NewProject() {
       ...current,
       ...selectedFiles.map((file) => ({
         id: crypto.randomUUID(),
+        file,
         name: file.name,
         type: 'pdf' as const,
       })),
@@ -105,11 +119,58 @@ function NewProject() {
     event.target.value = ''
   }
 
+  const handleSubmit = async (event: SubmitEventLike) => {
+    event.preventDefault()
+
+    if (!projectName.trim() || isSubmitting) {
+      return
+    }
+
+    const formData = new FormData()
+
+    formData.append('title', projectName.trim())
+    formData.append('icon', selectedIconId)
+    formData.append('color', selectedColorId)
+
+    formData.append('deadline', hasDeadline ? deadline : '')
+    formData.append('description', hasDescription ? description.trim() : '')
+
+    files.forEach((pendingFile) => {
+      formData.append('files', pendingFile.file, pendingFile.name)
+    })
+
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create project')
+      }
+
+      const project = (await response.json()) as CreateProjectResponse
+
+      navigate(`/agent/${project.id}`)
+    } catch {
+      setSubmitError('Could not create project. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[#f7f6f2] text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
       <AppNav />
       <section className="relative mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-16 sm:px-6 sm:py-20">
-        <form className="border border-zinc-200 bg-white/78 p-4 shadow-sm backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/65 sm:p-5">
+        <form
+          onSubmit={handleSubmit}
+          className="border border-zinc-200 bg-white/78 p-4 shadow-sm backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/65 sm:p-5"
+        >
           <div className="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
               <PreviewIcon aria-hidden="true" className={`h-6 w-6 ${selectedColor.textClassName}`} strokeWidth={2.2} />
@@ -269,12 +330,15 @@ function NewProject() {
           </section>
 
           <button
-            type="button"
-            disabled={!projectName.trim()}
+            type="submit"
+            disabled={!projectName.trim() || isSubmitting}
             className="mt-6 min-h-11 w-full cursor-pointer bg-zinc-950 px-4 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-45 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200"
           >
-            Create Project
+            {isSubmitting ? 'Creating...' : 'Create Project'}
           </button>
+          {submitError ? (
+            <p className="mt-3 text-sm font-medium text-red-600 dark:text-red-400">{submitError}</p>
+          ) : null}
         </form>
       </section>
     </main>
