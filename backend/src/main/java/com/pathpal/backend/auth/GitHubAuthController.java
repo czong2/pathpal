@@ -6,11 +6,15 @@ import java.util.UUID;
 import com.pathpal.backend.user.User;
 import com.pathpal.backend.user.UserService;
 import jakarta.servlet.http.HttpSession;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/api/auth/github")
 public class GitHubAuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(GitHubAuthController.class);
     public static final String USER_ID_KEY = "USER_ID";
 
     private static final String GITHUB_STATE_KEY = "GITHUB_OAUTH_STATE";
@@ -55,6 +60,7 @@ public class GitHubAuthController {
     @GetMapping
     public ResponseEntity<Void> login(@RequestParam(defaultValue = "false") boolean remember, HttpSession session) {
         if (!StringUtils.hasText(clientId)) {
+            log.warn("GitHub login requested without GITHUB_CLIENT_ID");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -80,12 +86,21 @@ public class GitHubAuthController {
             @RequestParam(required = false) String error,
             HttpSession session) {
         if (StringUtils.hasText(error) || !StringUtils.hasText(code) || !StringUtils.hasText(state)) {
+            log.warn("GitHub callback rejected: error={}, hasCode={}, hasState={}",
+                error,
+                StringUtils.hasText(code),
+                StringUtils.hasText(state)
+            );
             return redirectToLoginError();
         }
 
         String expectedState = (String) session.getAttribute(GITHUB_STATE_KEY);
 
         if (!StringUtils.hasText(expectedState) || !expectedState.equals(state)) {
+            log.warn("GitHub callback rejected: state mismatch. expectedPresent={}, actualPresent={}",
+                StringUtils.hasText(expectedState),
+                StringUtils.hasText(state)
+            );
             return redirectToLoginError();
         }
 
@@ -93,12 +108,14 @@ public class GitHubAuthController {
             GitHubTokenResponse tokenResponse = exchangeCodeForToken(code);
 
             if (tokenResponse == null || !StringUtils.hasText(tokenResponse.accessToken())) {
+                log.warn("GitHub callback rejected: token response did not contain access token");
                 return redirectToLoginError();
             }
 
             GitHubUserResponse gitHubUser = fetchGitHubUser(tokenResponse.accessToken());
 
             if (gitHubUser == null || gitHubUser.id() == null || !StringUtils.hasText(gitHubUser.login())) {
+                log.warn("GitHub callback rejected: user response was incomplete");
                 return redirectToLoginError();
             }
 
@@ -116,6 +133,7 @@ public class GitHubAuthController {
 
             return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/today")).build();
         } catch (RuntimeException exception) {
+            log.warn("GitHub callback failed", exception);
             return redirectToLoginError();
         }
     }
@@ -159,15 +177,17 @@ public class GitHubAuthController {
         return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/login?error=github")).build();
     }
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record GitHubTokenResponse(
-            @com.fasterxml.jackson.annotation.JsonProperty("access_token") String accessToken,
-            @com.fasterxml.jackson.annotation.JsonProperty("token_type") String tokenType,
+            String accessToken,
+            String tokenType,
             String scope) {
     }
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     private record GitHubUserResponse(
             Long id,
             String login,
-            @com.fasterxml.jackson.annotation.JsonProperty("avatar_url") String avatarUrl) {
+            String avatarUrl) {
     }
 }

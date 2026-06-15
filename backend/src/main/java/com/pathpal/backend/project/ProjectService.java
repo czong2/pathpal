@@ -25,7 +25,7 @@ public class ProjectService {
             ProjectRepository projectRepository,
             @Value("${pathpal.storage-dir:./data}") String storageDir) {
         this.projectRepository = projectRepository;
-        this.storageRoot = Path.of(storageDir);
+        this.storageRoot = Path.of(storageDir).toAbsolutePath().normalize();
     }
 
     @Transactional

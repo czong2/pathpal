@@ -27,6 +27,10 @@ replay_pid*
 .env
 *.env
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Local app data
 data/
 agent/data/
