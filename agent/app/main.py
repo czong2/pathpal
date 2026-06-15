@@ -19,7 +19,6 @@ class AgentFile(BaseModel):
 class AgentProject(BaseModel):
     id: int
     title: str
-    deadline: str | None = None
     description: str | None = None
 
 

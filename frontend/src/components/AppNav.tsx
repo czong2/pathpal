@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
   FileText,
-  ListChecks,
   LogOut,
   Menu,
   Plus,
@@ -65,19 +64,6 @@ export function AppNav() {
         <nav className="flex flex-col">
           <div className="flex flex-col gap-1">
             <Link
-              to="/today"
-              onClick={() => setIsOpen(false)}
-              className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition ${
-                location.pathname === '/today'
-                  ? 'bg-zinc-200/80 text-zinc-950 dark:bg-zinc-800/90 dark:text-zinc-50'
-                  : 'text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-50'
-              }`}
-            >
-              <ListChecks aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2} />
-              <span className="truncate">Today</span>
-            </Link>
-
-            <Link
               to="/agent"
               onClick={() => setIsOpen(false)}
               className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-semibold transition ${
@@ -124,14 +110,6 @@ export function AppNav() {
                 </Link>
               ))}
             </div>
-
-            <Link
-              to="/today"
-              onClick={() => setIsOpen(false)}
-              className="mt-3 block rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-300"
-            >
-              Show Completed Projects
-            </Link>
           </div>
         </nav>
 

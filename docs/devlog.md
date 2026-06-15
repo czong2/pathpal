@@ -40,7 +40,7 @@
 
 - Add backend integration for agent creation
 
-## 2026-06-13 Direction Change
+## 2026-06-13 Direction Change I
 
 ### Completed
 
@@ -63,3 +63,16 @@
 ### Next Steps
 
 - Build APIs to persist chat messages and uploaded project files
+
+## 2026-06-15 Direction Change II
+
+### Completed
+
+- Added the persistent chat API
+- Wired the local PDF RAG agent through Ollama
+- Changed direction again to a PDF Q&A agent because my computer cannot run larger models well
+
+### Next Steps
+
+- Make the app consistently centered on PDF Q&A
+- Use the most recent project chat as the post-login landing page

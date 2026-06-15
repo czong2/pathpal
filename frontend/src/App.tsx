@@ -1,10 +1,9 @@
-import { ListChecks, LogIn, RefreshCcw, Route } from 'lucide-react'
+import { FileUp, LogIn, MessageCircleQuestion, Quote } from 'lucide-react'
 import { BrowserRouter, Link, Route as RouterRoute, Routes } from 'react-router-dom'
 import Agent from './pages/Agent'
 import Auth from './pages/Auth'
 import Login from './pages/Login'
 import NewProject from './pages/NewProject'
-import Today from './pages/Today'
 import { RequireLogin } from './routes/RequireLogin'
 import { RequireTurnstile } from './routes/RequireTurnstile'
 import { SessionProvider } from './session/SessionProvider'
@@ -24,16 +23,16 @@ function Home() {
         <section className="flex flex-1 items-center py-8 sm:py-20">
           <div className="max-w-3xl">
             <p className="mb-5 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              A calmer way to plan your learning.
+              A calmer way to read dense PDFs.
             </p>
 
             <h1 className="text-4xl font-semibold leading-tight sm:text-6xl sm:leading-[1.05]">
-              Turn messy goals into a path you can actually follow.
+              Ask your documents and get grounded answers.
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-400 sm:mt-6 sm:text-lg sm:leading-8">
-              PathPal helps you organize what to learn, break it into clear steps,
-              and keep track of your progress without overthinking the whole plan.
+              PathPal lets you upload PDFs, ask questions in plain language,
+              and trace answers back to the pages they came from.
             </p>
           </div>
         </section>
@@ -41,31 +40,31 @@ function Home() {
         <section className="grid grid-cols-1 gap-3 border-t border-zinc-200 py-6 dark:border-zinc-800 sm:gap-4 sm:py-8 md:grid-cols-3">
           <div className="group min-w-0 border border-zinc-200 bg-white/70 p-4 shadow-sm backdrop-blur transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-[0_14px_40px_rgba(39,39,42,0.10)] dark:border-zinc-800 dark:bg-zinc-900/55 dark:hover:border-zinc-600 dark:hover:shadow-[0_14px_40px_rgba(0,0,0,0.28)] sm:p-5">
             <div className="mb-5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 transition-colors duration-500 group-hover:bg-emerald-50 dark:bg-zinc-800 dark:group-hover:bg-emerald-950 sm:mb-6">
-              <Route aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+              <FileUp aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
             </div>
-            <h2 className="text-lg font-semibold">Plan</h2>
+            <h2 className="text-lg font-semibold">Upload</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              Break a goal into small steps and milestones.
+              Add the PDFs you want to inspect and keep them grouped by project.
             </p>
           </div>
 
           <div className="group min-w-0 border border-zinc-200 bg-white/70 p-4 shadow-sm backdrop-blur transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-[0_14px_40px_rgba(39,39,42,0.10)] dark:border-zinc-800 dark:bg-zinc-900/55 dark:hover:border-zinc-600 dark:hover:shadow-[0_14px_40px_rgba(0,0,0,0.28)] sm:p-5">
             <div className="mb-5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 transition-colors duration-500 group-hover:bg-sky-50 dark:bg-zinc-800 dark:group-hover:bg-sky-950 sm:mb-6">
-              <ListChecks aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+              <MessageCircleQuestion aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
             </div>
-            <h2 className="text-lg font-semibold">Track</h2>
+            <h2 className="text-lg font-semibold">Ask</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              See what you finished and what needs attention.
+              Search across your documents with natural questions instead of manual skimming.
             </p>
           </div>
 
           <div className="group min-w-0 border border-zinc-200 bg-white/70 p-4 shadow-sm backdrop-blur transition-all duration-500 ease-out hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-[0_14px_40px_rgba(39,39,42,0.10)] dark:border-zinc-800 dark:bg-zinc-900/55 dark:hover:border-zinc-600 dark:hover:shadow-[0_14px_40px_rgba(0,0,0,0.28)] sm:p-5">
             <div className="mb-5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 transition-colors duration-500 group-hover:bg-amber-50 dark:bg-zinc-800 dark:group-hover:bg-amber-950 sm:mb-6">
-              <RefreshCcw aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+              <Quote aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
             </div>
-            <h2 className="text-lg font-semibold">Reflect</h2>
+            <h2 className="text-lg font-semibold">Verify</h2>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              Review your progress and adjust your path over time.
+              Check cited pages so every answer stays tied to the original source.
             </p>
           </div>
         </section>
@@ -97,7 +96,6 @@ function App() {
             <RouterRoute element={<RequireLogin />}>
               <RouterRoute path="/agent" element={<NewProject />} />
               <RouterRoute path="/agent/:projectId" element={<Agent />} />
-              <RouterRoute path="/today" element={<Today />} />
             </RouterRoute>
           </RouterRoute>
         </Routes>

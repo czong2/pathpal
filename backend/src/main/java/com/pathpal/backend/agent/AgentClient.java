@@ -55,7 +55,6 @@ public class AgentClient {
     public record AgentProject(
             Long id,
             String title,
-            String deadline,
             String description) {
     }
 

@@ -39,7 +39,7 @@ function Login() {
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400 sm:mt-6 sm:text-lg sm:leading-8">
-              Continue planning and tracking your learning.
+              Return to your PDFs, questions, and cited answers.
             </p>
           </div>
 
@@ -74,7 +74,7 @@ function Login() {
               <div className="border border-zinc-200 bg-white/60 p-4 dark:border-zinc-800 dark:bg-zinc-950/45">
                 <ShieldCheck aria-hidden="true" className="mb-3 h-5 w-5 text-emerald-700 dark:text-emerald-300" />
                 <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-                  PathPal uses GitHub sign-in so you do not need another password to manage.
+                  PathPal uses GitHub sign-in so your document workspace stays tied to your account.
                 </p>
               </div>
             </div>

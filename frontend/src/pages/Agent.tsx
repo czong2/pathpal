@@ -53,7 +53,7 @@ const initialMessages: ChatMessage[] = [
   {
     id: 'welcome',
     from: 'Agent',
-    text: 'Upload PDFs for this project, then ask me to turn them into a focused plan.',
+    text: 'Upload PDFs for this project, then ask me questions about them.',
   },
 ]
 
@@ -307,7 +307,7 @@ function Agent() {
             <input
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Ask about this project..."
+              placeholder="Ask a question about your PDFs..."
               disabled={isSending}
               className="h-11 min-w-0 flex-1 border border-zinc-300 bg-white/80 px-4 text-sm outline-none transition focus:border-zinc-700 dark:border-zinc-700 dark:bg-zinc-950/55 dark:focus:border-zinc-300"
             />

@@ -16,17 +16,17 @@ def generate_answer(project: dict[str, Any], message: str, chunks: list[dict[str
         f"[{index}. {chunk['fileName']} page {chunk['page']}]\n{chunk['text']}"
         for index, chunk in enumerate(chunks, start=1)
     )
-    deadline = project.get("deadline") or "No deadline"
-    description = project.get("description") or "No extra project notes"
+    description = project.get("description") or "No project notes"
     prompt = dedent(
         f"""
-        You are PathPal, a practical learning-planning agent.
-        Use the provided PDF context to answer the user. If the context is not enough, say what is missing.
-        Prefer concrete plans, milestones, and next actions. Cite PDF pages inline when useful.
+        You are PathPal, a PDF question-answering assistant.
+        Answer the user's question using only the provided PDF context.
+        If the answer is not present in the context, say you could not find it in the uploaded PDFs.
+        Do not invent chapters, page ranges, deadlines, reading plans, or action steps.
+        Keep the answer concise and cite PDF pages inline when useful.
 
         Project:
         Title: {project["title"]}
-        Deadline: {deadline}
         Notes: {description}
 
         PDF context:
@@ -45,7 +45,7 @@ def generate_answer(project: dict[str, Any], message: str, chunks: list[dict[str
             "messages": [
                 {
                     "role": "system",
-                    "content": "You turn uploaded study/work PDFs into grounded, concise plans.",
+                    "content": "You answer questions about uploaded PDFs using only retrieved context.",
                 },
                 {"role": "user", "content": prompt},
             ],

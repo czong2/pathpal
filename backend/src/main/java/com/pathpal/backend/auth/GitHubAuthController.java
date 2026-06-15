@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedMultiValueMap;
@@ -37,7 +38,9 @@ public class GitHubAuthController {
     private static final URI GITHUB_TOKEN_URL = URI.create("https://github.com/login/oauth/access_token");
     private static final URI GITHUB_USER_URL = URI.create("https://api.github.com/user");
 
-    private final RestClient restClient = RestClient.builder().build();
+    private final RestClient restClient = RestClient.builder()
+        .requestFactory(new SimpleClientHttpRequestFactory())
+        .build();
     private final UserService userService;
     private final String clientId;
     private final String clientSecret;
@@ -131,7 +134,7 @@ public class GitHubAuthController {
             session.removeAttribute(GITHUB_REMEMBER_KEY);
             session.setMaxInactiveInterval(remember ? 7 * 24 * 60 * 60 : 60 * 60);
 
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/today")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/agent")).build();
         } catch (RuntimeException exception) {
             log.warn("GitHub callback failed", exception);
             return redirectToLoginError();

@@ -115,7 +115,6 @@ public class AgentController {
             new AgentClient.AgentProject(
                 project.getId(),
                 project.getTitle(),
-                project.getDeadline() == null ? null : project.getDeadline().toString(),
                 project.getDescription()
             ),
             project.getFiles().stream().map(this::toAgentFile).toList(),
