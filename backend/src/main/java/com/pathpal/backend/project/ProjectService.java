@@ -57,6 +57,19 @@ public class ProjectService {
         return project;
     }
 
+    @Transactional
+    public PathProject addFiles(PathProject project, List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
+
+            project.addFile(storeFile(project.getId(), file));
+        }
+
+        return projectRepository.save(project);
+    }
+
     private ProjectFile storeFile(Long projectId, MultipartFile file) {
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() == null
             ? "document.pdf"

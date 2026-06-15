@@ -10,6 +10,9 @@ spring:
     show-sql: true
 
 pathpal:
+  agent:
+    base-url: ${AGENT_BASE_URL:http://localhost:8001}
+  storage-dir: ${PATHPAL_STORAGE_DIR:./data}
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   turnstile:
     secret-key: ${TURNSTILE_SECRET_KEY:}

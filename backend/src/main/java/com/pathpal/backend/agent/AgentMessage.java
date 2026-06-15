@@ -1,21 +1,25 @@
-package com.pathpal.backend.project;
+package com.pathpal.backend.agent;
 
 import java.time.Instant;
 
+import com.pathpal.backend.project.PathProject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "project_files")
-public class ProjectFile {
+@Table(name = "agent_messages")
+public class AgentMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,29 +29,29 @@ public class ProjectFile {
     @JoinColumn(name = "project_id", nullable = false)
     private PathProject project;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String originalFilename;
+    private AgentMessageRole role;
 
+    @Lob
     @Column(nullable = false)
-    private String storagePath;
+    private String content;
 
-    @Column(nullable = false)
-    private String contentType;
-
-    @Column(nullable = false)
-    private long sizeBytes;
+    @Lob
+    @Column
+    private String citationsJson;
 
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected ProjectFile() {
+    protected AgentMessage() {
     }
 
-    public ProjectFile(String originalFilename, String storagePath, String contentType, long sizeBytes) {
-        this.originalFilename = originalFilename;
-        this.storagePath = storagePath;
-        this.contentType = contentType;
-        this.sizeBytes = sizeBytes;
+    public AgentMessage(PathProject project, AgentMessageRole role, String content, String citationsJson) {
+        this.project = project;
+        this.role = role;
+        this.content = content;
+        this.citationsJson = citationsJson;
     }
 
     @PrePersist
@@ -59,23 +63,19 @@ public class ProjectFile {
         return id;
     }
 
-    public String getOriginalFilename() {
-        return originalFilename;
+    public AgentMessageRole getRole() {
+        return role;
     }
 
-    public String getContentType() {
-        return contentType;
+    public String getContent() {
+        return content;
     }
 
-    public long getSizeBytes() {
-        return sizeBytes;
+    public String getCitationsJson() {
+        return citationsJson;
     }
 
-    public String getStoragePath() {
-        return storagePath;
-    }
-
-    void setProject(PathProject project) {
-        this.project = project;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

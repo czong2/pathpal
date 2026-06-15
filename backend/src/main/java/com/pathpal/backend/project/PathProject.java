@@ -112,6 +112,10 @@ public class PathProject {
         return files;
     }
 
+    public Long getUserId() {
+        return user.getId();
+    }
+
     public void addFile(ProjectFile file) {
         files.add(file);
         file.setProject(this);
