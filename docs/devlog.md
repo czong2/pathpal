@@ -70,9 +70,25 @@
 
 - Added the persistent chat API
 - Wired the local PDF RAG agent through Ollama
-- Changed direction again to a PDF Q&A agent because my computer cannot run larger models well
+- Changed direction again to a PDF Q&A agent because my laptop cannot run larger models well
 
 ### Next Steps
 
 - Make the app consistently centered on PDF Q&A
 - Use the most recent project chat as the post-login landing page
+
+## 2026-06-16 Navigation Polish and Project Recovery
+
+### Completed
+
+- Reworked the sidebar to load projects directly from the backend
+- Sorted projects by most recent chat activity
+- Updated post-login routing to automatically open the most recently used project
+- Rendered chat messages as Markdown for improved readability
+- Refined scrollbar behavior across the application
+- Added a root-level README
+
+### Next Steps
+
+- Project complete for the current scope
+- Future expansion remains possible

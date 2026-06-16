@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import { BookOpen, BriefcaseBusiness, FileText, GraduationCap, Lightbulb, Send, UploadCloud } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import Markdown from 'react-markdown'
 import { useParams } from 'react-router-dom'
 import { AppNav } from '../components/AppNav'
 
@@ -235,6 +236,7 @@ function Agent() {
         toChatMessage(agentResponse.userMessage),
         toChatMessage(agentResponse.agentMessage),
       ])
+      window.dispatchEvent(new Event('pathpal:projects-changed'))
     } catch {
       setErrorMessage('The local agent could not answer. Make sure the Python agent service and Ollama are running.')
       setMessages((current) => [
@@ -282,7 +284,17 @@ function Agent() {
                       : 'mr-auto bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100'
                   }`}
                 >
-                  {message.text}
+                  <Markdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      ol: ({ children }) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>,
+                      ul: ({ children }) => <ul className="mb-2 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>,
+                      li: ({ children }) => <li className="pl-1">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    }}
+                  >
+                    {message.text}
+                  </Markdown>
                   {message.citations && message.citations.length > 0 ? (
                     <div className="mt-3 border-t border-zinc-200/70 pt-2 text-xs leading-5 opacity-75 dark:border-zinc-700/70">
                       {message.citations.slice(0, 3).map((citation) => (

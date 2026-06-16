@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,24 @@ public class ProjectController {
     public ProjectController(ProjectService projectService, UserRepository userRepository) {
         this.projectService = projectService;
         this.userRepository = userRepository;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> listProjects(HttpSession session) {
+        Long userId = (Long) session.getAttribute(GitHubAuthController.USER_ID_KEY);
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(projectService.findProjectsForSidebar(userId)
+            .stream()
+            .map(ProjectSummaryResponse::from)
+            .toList());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -122,6 +141,22 @@ public class ProjectController {
             return LocalDate.parse(deadline);
         } catch (DateTimeParseException exception) {
             return null;
+        }
+    }
+
+    private record ProjectSummaryResponse(
+            Long id,
+            String title,
+            String icon,
+            String color) {
+
+        static ProjectSummaryResponse from(PathProject project) {
+            return new ProjectSummaryResponse(
+                project.getId(),
+                project.getTitle(),
+                project.getIcon(),
+                project.getColor()
+            );
         }
     }
 }

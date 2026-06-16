@@ -53,16 +53,18 @@ function Auth() {
           </p>
         </div>
 
-        <div className="max-w-full overflow-x-auto border border-zinc-300 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-950">
-          <div className="min-w-[280px] max-w-full">
-            <Turnstile
-              siteKey={env.turnstileSiteKey}
-              onSuccess={handleTurnstileSuccess}
-              options={{
-                size: 'flexible',
-                theme: 'auto',
-              }}
-            />
+        <div className="scrollbar-none max-w-full overflow-x-auto border border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+          <div className="w-max min-w-full p-2.5">
+            <div className="min-w-[280px] max-w-full">
+              <Turnstile
+                siteKey={env.turnstileSiteKey}
+                onSuccess={handleTurnstileSuccess}
+                options={{
+                  size: 'flexible',
+                  theme: 'auto',
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>

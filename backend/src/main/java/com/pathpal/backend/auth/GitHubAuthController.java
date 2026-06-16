@@ -3,6 +3,7 @@ package com.pathpal.backend.auth;
 import java.net.URI;
 import java.util.UUID;
 
+import com.pathpal.backend.project.ProjectService;
 import com.pathpal.backend.user.User;
 import com.pathpal.backend.user.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +43,7 @@ public class GitHubAuthController {
         .requestFactory(new SimpleClientHttpRequestFactory())
         .build();
     private final UserService userService;
+    private final ProjectService projectService;
     private final String clientId;
     private final String clientSecret;
     private final String redirectUri;
@@ -49,11 +51,13 @@ public class GitHubAuthController {
 
     public GitHubAuthController(
             UserService userService,
+            ProjectService projectService,
             @Value("${pathpal.github.client-id:}") String clientId,
             @Value("${pathpal.github.client-secret:}") String clientSecret,
             @Value("${pathpal.github.redirect-uri:http://localhost:8080/api/auth/github/callback}") String redirectUri,
             @Value("${pathpal.frontend-url:http://localhost:5173}") String frontendUrl) {
         this.userService = userService;
+        this.projectService = projectService;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
@@ -134,7 +138,7 @@ public class GitHubAuthController {
             session.removeAttribute(GITHUB_REMEMBER_KEY);
             session.setMaxInactiveInterval(remember ? 7 * 24 * 60 * 60 : 60 * 60);
 
-            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation("/agent")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(frontendLocation(postSignInPath(user))).build();
         } catch (RuntimeException exception) {
             log.warn("GitHub callback failed", exception);
             return redirectToLoginError();
@@ -174,6 +178,14 @@ public class GitHubAuthController {
         return UriComponentsBuilder.fromUriString(frontendUrl + path)
             .build()
             .toUri();
+    }
+
+    private String postSignInPath(User user) {
+        return projectService.findProjectsForSidebar(user.getId())
+            .stream()
+            .findFirst()
+            .map(project -> "/agent/" + project.getId())
+            .orElse("/agent");
     }
 
     private ResponseEntity<Void> redirectToLoginError() {

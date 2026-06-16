@@ -322,7 +322,7 @@ function NewProject() {
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="What should the agent pay attention to?"
+                placeholder="Add notes, goals, or context for this project..."
                 rows={4}
                 className="mt-3 w-full resize-none border border-zinc-300 bg-white/80 px-3 py-3 text-sm leading-6 outline-none transition focus:border-zinc-700 dark:border-zinc-700 dark:bg-zinc-950/55 dark:focus:border-zinc-300"
               />

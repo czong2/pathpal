@@ -28,6 +28,11 @@ public class ProjectService {
         this.storageRoot = Path.of(storageDir).toAbsolutePath().normalize();
     }
 
+    @Transactional(readOnly = true)
+    public List<PathProject> findProjectsForSidebar(Long userId) {
+        return projectRepository.findByUserIdOrderByLatestChat(userId);
+    }
+
     @Transactional
     public PathProject createProject(
             User user,
